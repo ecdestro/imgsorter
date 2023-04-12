@@ -27,11 +27,16 @@ for image in images:
 sorted_images = sorted(zip(images, ratios), key=lambda x: x[1])
 
 for i, (image, _) in enumerate(sorted_images):
+    fname = images[i].filename
     if ratios[i] > 1.7 and ratios[i] < 1.8:
-        shutil.move(images[i].filename, folders[3])
+        dest = os.path.join(folders[3], fname)
+        shutil.move(images[i].filename, dest)
     elif ratios[i] < 1:
-        shutil.move(str(images[i].filename), folders[0])
+        dest = os.path.join(folders[0], fname)
+        shutil.move(str(images[i].filename), dest)
     elif ratios[i] == 1:
-        shutil.move(str(images[i].filename), folders[1])
+        dest = os.path.join(folders[1], fname)
+        shutil.move(str(images[i].filename), dest)
     elif ratios[i] > 1:
-        shutil.move(str(images[i].filename), folders[2])
+        dest = os.path.join(folders[2], fname)
+        shutil.move(str(images[i].filename), dest)
