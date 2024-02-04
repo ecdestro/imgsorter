@@ -5,13 +5,19 @@ import shutil
 import os
 
 files = os.listdir('.')
-folders = ["portrait", "square", "landscape", "landscape/16x9"]
+folders = ["portrait", "square", "landscape", "landscape/16x9", "landscape/16x10", "misc", "misc/webp", "misc/gif"]
 images = []
 ratios = []
 
 for folder in folders:
     if not os.path.exists(folder):
         os.mkdir(folder)
+
+for etc in files:
+    if etc.endswith('.webp'):
+        shutil.move(etc, folders[6])
+    if etc.endswith('.gif'):
+        shutil.move(etc, folders[7])
 
 for file in files:
     if file.endswith('.jpg') or file.endswith('.png') or file.endswith('.jpeg'):
@@ -28,7 +34,10 @@ sorted_images = sorted(zip(images, ratios), key=lambda x: x[1])
 
 for i, (image, _) in enumerate(sorted_images):
     fname = images[i].filename
-    if ratios[i] > 1.7 and ratios[i] < 1.8:
+    if ratios[i] == 1.6:
+        dest = os.path.join(folders[4], fname)
+        shutil.move(images[i].filename, dest)
+    elif ratios[i] > 1.7 and ratios[i] < 1.8:
         dest = os.path.join(folders[3], fname)
         shutil.move(images[i].filename, dest)
     elif ratios[i] < 1:
