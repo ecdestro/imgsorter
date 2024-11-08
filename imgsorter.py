@@ -1,51 +1,49 @@
 #!/usr/bin/python3
 
-from PIL import Image
-import shutil
+#!/usr/bin/python
+
 import os
+import shutil
+import PIL.Image
 
-files = os.listdir('.')
-folders = ["portrait", "square", "landscape", "landscape/16x9", "landscape/16x10", "misc", "misc/webp", "misc/gif"]
-images = []
-ratios = []
+def sort_images_by_aspect_ratio(image_folder):
 
-for folder in folders:
-    if not os.path.exists(folder):
-        os.mkdir(folder)
+    aspect_ratio_folders = {
+        "landscape": os.path.join(image_folder, "landscape"),
+        "landscape/16x9": os.path.join(image_folder, "landscape/16x9"),
+        "landscape/16x10": os.path.join(image_folder, "landscape/16x10"),
+        "portrait": os.path.join(image_folder, "portrait"),
+        "misc": os.path.join(image_folder, "misc"),
+        "misc/gif": os.path.join(image_folder, "misc/gif"),
+        "misc/webp": os.path.join(image_folder, "misc/webp"),
+        "square": os.path.join(image_folder, "square")
+    }
 
-for etc in files:
-    if etc.endswith('.webp'):
-        shutil.move(etc, folders[6])
-    if etc.endswith('.gif'):
-        shutil.move(etc, folders[7])
+    for folder_name in aspect_ratio_folders.values():
+        os.makedirs(folder_name, exist_ok=True)
 
-for file in files:
-    if file.endswith('.jpg') or file.endswith('.png') or file.endswith('.jpeg'):
-        imgfile = Image.open(file)
-        images.append(imgfile)
-        imgfile.close()
-        
-for image in images:
-    width, height = image.size
-    ratio = width / height
-    ratios.append(ratio)
+    for image_file in os.listdir(image_folder):
+        if image_file.lower().endswith((".jpg", ".jpeg", ".png")):
+            image_path = os.path.join(image_folder, image_file)
+            image = PIL.Image.open(image_path)
+            width, height = image.size
+            aspect_ratio = width / height
 
-sorted_images = sorted(zip(images, ratios), key=lambda x: x[1])
+            if aspect_ratio == 1.6:
+                destination_folder = aspect_ratio_folders["landscape/16x10"]
+            elif aspect_ratio > 1.7 and aspect_ratio < 1.8:
+                destination_folder = aspect_ratio_folders["landscape/16x9"]
+            elif aspect_ratio < 1:
+                destination_folder = aspect_ratio_folders["portrait"]
+            elif aspect_ratio == 1:
+                destination_folder = aspect_ratio_folders["square"]
+            elif aspect_ratio > 1:
+                destination_folder = aspect_ratio_folders["landscape"]
 
-for i, (image, _) in enumerate(sorted_images):
-    fname = images[i].filename
-    if ratios[i] == 1.6:
-        dest = os.path.join(folders[4], fname)
-        shutil.move(images[i].filename, dest)
-    elif ratios[i] > 1.7 and ratios[i] < 1.8:
-        dest = os.path.join(folders[3], fname)
-        shutil.move(images[i].filename, dest)
-    elif ratios[i] < 1:
-        dest = os.path.join(folders[0], fname)
-        shutil.move(str(images[i].filename), dest)
-    elif ratios[i] == 1:
-        dest = os.path.join(folders[1], fname)
-        shutil.move(str(images[i].filename), dest)
-    elif ratios[i] > 1:
-        dest = os.path.join(folders[2], fname)
-        shutil.move(str(images[i].filename), dest)
+            new_path = os.path.join(destination_folder, image_file)
+            image.close()
+            shutil.move(image_path, new_path)
+
+if __name__ == "__main__":
+    image_folder = "."
+    sort_images_by_aspect_ratio(image_folder)
