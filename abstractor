@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+import os
+import sys
+import numpy as np
+from PIL import Image
+from skimage import io, color
+
+contrast_threshold = float(sys.argv[1])
+brightness_threshold = float(sys.argv[2])
+
+if len(sys.argv) != 3:
+    print(f"Usage: {sys.argv[0]} needs two numerical arguments")
+    exit()
+
+def calculate_contrast(image_path):
+    img = Image.open(image_path).convert('L')
+    img_array = np.array(img)
+    img.close()
+    return np.std(img_array)
+
+def calculate_brightness(image_path):
+    img = Image.open(image_path).convert('RGB')
+    r, g, b = img.getpixel((0, 0))
+    brightness = (2126 * r + 7152 * g + 722 * b) / 1000
+    img.close()
+    return brightness
+
+image_dir = "/path/to/images"
+
+for filename in os.listdir(image_dir):
+    if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+        filepath = os.path.join(image_dir, filename)
+        contrast = calculate_contrast(filepath)
+        brightness = calculate_brightness(filepath)
+
+        if contrast > contrast_threshold:
+            if brightness < brightness_threshold:
+                print(filepath)
